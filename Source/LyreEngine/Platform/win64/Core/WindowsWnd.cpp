@@ -95,7 +95,7 @@ namespace Lyre
 		return true;
 	}
 
-	void CWindowsWnd::OnUpdate()
+	void CWindowsWnd::Tick(float deltaTime)
 	{
 		MSG msg = { 0 };
 		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -114,8 +114,8 @@ namespace Lyre
 		static POINT prevCursorPos{ cursorPos };
 
 		CMouseMoveEvent mouseMove;
-		mouseMove.dx = (prevCursorPos.x - cursorPos.x) * 0.003f;
-		mouseMove.dy = (prevCursorPos.y - cursorPos.y) * 0.003f;
+		mouseMove.dx = (prevCursorPos.x - cursorPos.x) * deltaTime;
+		mouseMove.dy = (prevCursorPos.y - cursorPos.y) * deltaTime;
 
 		SetCursorPos(prevCursorPos.x, prevCursorPos.y);
 
@@ -127,8 +127,8 @@ namespace Lyre
 		if (ahead != 0.f || aside != 0.f)
 		{
 			CMovementEvent movement;
-			movement.ahead = ahead * 0.003f;
-			movement.aside = aside * 0.003f;
+			movement.ahead = ahead * deltaTime;
+			movement.aside = aside * deltaTime;
 			m_windowEventListener->OnEvent(movement);
 		}
 	}

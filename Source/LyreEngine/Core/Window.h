@@ -27,7 +27,7 @@ namespace Lyre
 		{}
 		virtual ~CWindow() = default;
 
-		virtual void OnUpdate() = 0;
+		virtual void Tick(float deltaTime) = 0;
 		void SetListener(EventListener* listener) { m_windowEventListener = listener; }
 		void SetProperties(SProperties props) { m_props = props; }
 

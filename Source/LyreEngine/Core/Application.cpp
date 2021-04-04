@@ -1,6 +1,7 @@
 #include "LyrePch.h"
 
 #include "Application.h"
+#include "Platform.h"
 #include "Window.h"
 #include "WindowLifeTimeEvents.h"
 #include "InputEvents.h"
@@ -61,7 +62,9 @@ void Lyre::CApplication::Run()
 {
 	while (m_running)
 	{
-		m_window->OnUpdate();
+		float const deltaTime = IPlatform::GetDeltaTimeSinceLastCall();
+
+		m_window->Tick(deltaTime);
 
 		float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 		CRenderer::GetAPI()->Clear(clearColor);
@@ -81,14 +84,16 @@ bool Lyre::CApplication::OnWindowClosed(CWindowClosedEvent const& event)
 
 bool Lyre::CApplication::OnMouseMove(CMouseMoveEvent const& event)
 {
-	m_camera->Pan(event.dx);
-	m_camera->Tilt(event.dy);
+	static float const Sensetivity = 8.f;
+	m_camera->Pan(event.dx * Sensetivity);
+	m_camera->Tilt(event.dy * Sensetivity);
 	return true;
 }
 
 bool Lyre::CApplication::OnMovement(CMovementEvent const& event)
 {
-	m_camera->MoveAhead(event.ahead);
-	m_camera->MoveAside(event.aside);
+	static float const Speed = 5.f;
+	m_camera->MoveAhead(event.ahead * Speed);
+	m_camera->MoveAside(event.aside * Speed);
 	return true;
 }

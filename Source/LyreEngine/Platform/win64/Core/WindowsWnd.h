@@ -11,7 +11,7 @@ namespace Lyre
 		using CWindow::CWindow;
 
 		bool Init(HINSTANCE hInst, int nCmdShow);
-		void OnUpdate() override;
+		void Tick(float deltaTime) override;
 
 		HWND getHandle() const { return m_hWindow; }
 
