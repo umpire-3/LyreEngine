@@ -26,6 +26,8 @@ namespace Lyre
 		void Run();
 
 		CWindow* GetWindow() { return m_window; }
+		template<class TWindow = CWindow>
+		TWindow* GetWindow() { return static_cast<TWindow*>(m_window); }
 		CWindow const* GetWindow() const { return m_window; }
 
 		EVENT_MAP(CApplication)
