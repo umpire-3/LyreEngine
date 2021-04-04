@@ -10,7 +10,7 @@
 #include "Utils/WICTextureLoader.h"
 
 #include "Core/Application.h"
-#include "WindowsWnd.h"
+#include "Core/WindowsWnd.h"
 
 namespace
 {

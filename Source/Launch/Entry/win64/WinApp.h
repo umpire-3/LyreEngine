@@ -1,7 +1,7 @@
 #pragma once
 
 #include <LyreEngine.h>
-#include <WindowsWnd.h>
+#include <Core/WindowsWnd.h>
 
 class WinApp : public Lyre::CApplication
 {
