@@ -107,21 +107,31 @@ namespace Lyre
 			{
 				m_windowEventListener->OnEvent(CWindowClosedEvent{});
 			}
+			else if (msg.message == WM_KEYDOWN)
+			{
+				if (msg.wParam == VK_F1)
+				{
+					ToggleCaptureCursor();
+				}
+			}
 		}
 
-		POINT cursorPos;
-		GetCursorPos(&cursorPos);
-		static POINT prevCursorPos{ cursorPos };
-
-		CMouseMoveEvent mouseMove;
-		mouseMove.dx = (prevCursorPos.x - cursorPos.x) * deltaTime;
-		mouseMove.dy = (prevCursorPos.y - cursorPos.y) * deltaTime;
-
-		SetCursorPos(prevCursorPos.x, prevCursorPos.y);
-
-		if (mouseMove.dx != 0.f || mouseMove.dy != 0.f)
+		if (m_captureCursor)
 		{
-			m_windowEventListener->OnEvent(mouseMove);
+			POINT cursorPos;
+			GetCursorPos(&cursorPos);
+			static POINT prevCursorPos{ cursorPos };
+
+			CMouseMoveEvent mouseMove;
+			mouseMove.dx = (prevCursorPos.x - cursorPos.x) * deltaTime;
+			mouseMove.dy = (prevCursorPos.y - cursorPos.y) * deltaTime;
+
+			SetCursorPos(prevCursorPos.x, prevCursorPos.y);
+
+			if (mouseMove.dx != 0.f || mouseMove.dy != 0.f)
+			{
+				m_windowEventListener->OnEvent(mouseMove);
+			}
 		}
 
 		if (ahead != 0.f || aside != 0.f)
