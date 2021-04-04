@@ -45,68 +45,20 @@ void Lyre::CApplication::Init()
 	});
 
 	m_cameraConstants->UpdateConstant(0, glm::value_ptr(m_camera->GetViewProjection()));
+
+	m_mesh = make_shared<CMesh>("../Data/blendUVSphere.obj");
+	m_mesh->GetModel() = glm::scale(glm::mat4{ 1.f }, glm::vec3{ 2.f });
+
+	shared_ptr<CTexture> albedo = CRenderer::GetAPI()->CreateTextureFromFile("Metal003_2K_Color.jpg");
+
+	shared_ptr<CShader> shader = CRenderer::GetAPI()->CreateShaderFromFiles("test_vertex_shader", "test_pixel_shader");
+	shader->AddConstantBuffer(m_cameraConstants);
+	shader->AddTexture(albedo);
+	m_mesh->SetShader(shader);
 }
 
 void Lyre::CApplication::Run()
 {
-	string vsSrc = R"(
-		cbuffer CAMERA : register(b0)
-		{
-			matrix viewProj;
-		};
-
-		cbuffer MODEL : register(b1)
-		{
-			matrix model;
-		};
-
-		struct VS_Input
-		{
-			float3 pos : POSITION;
-			float3 normal : NORMAL;
-		};
-		struct VS_Output
-		{
-			float4 pos : SV_Position;
-			float4 normal : NORMAL;
-		};
-
-		VS_Output main(VS_Input input)
-		{
-			VS_Output output = (VS_Output)0;
-			matrix modelViewProj = mul(model, viewProj);
-			output.pos = mul(float4(input.pos, 1.f), modelViewProj);
-			output.normal = mul(float4(normalize(input.normal), 0.f), modelViewProj);
-			return output;
-		}
-	)";
-
-	string psSrc = R"(
-		struct PS_Input
-		{
-			float4 pos : SV_Position;
-			float4 normal : NORMAL;
-		};
-
-		float4 main(in PS_Input input) : SV_Target
-		{
-			float3 dirTolight = normalize(float3(1.f, 0.f, -1.f));
-			float4 lightColor = float4(0.8f, 0.8f, 0.8f, 1.f);
-			float4 diffuseColor = float4(0.3f, 0.5f, 0.45f, 1.f);
-
-			float diffuseCoef = max(0.f, dot(input.normal.xyz, dirTolight).x);
-			
-			return lightColor * diffuseColor * diffuseCoef;
-		}
-	)";
-
-	shared_ptr<CMesh> mesh = make_shared<CMesh>("../../data/garg.obj");
-	mesh->GetModel() = glm::scale(glm::mat4{ 1.f }, glm::vec3{ 2.f });
-
-	shared_ptr<CShader> shader = CRenderer::GetAPI()->CreateShader(vsSrc, psSrc);
-	shader->AddConstantBuffer(m_cameraConstants);
-	mesh->SetShader(shader);
-
 	while (m_running)
 	{
 		m_window->OnUpdate();
@@ -115,7 +67,7 @@ void Lyre::CApplication::Run()
 		CRenderer::GetAPI()->Clear(clearColor);
 
 		m_cameraConstants->UpdateConstant(0, glm::value_ptr(m_camera->GetViewProjection()));
-		CRenderer::Submit(mesh);
+		CRenderer::Submit(m_mesh);
 
 		CRenderer::Present();
 	}

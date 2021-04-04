@@ -5,9 +5,20 @@
 #include "PipelineResources/InputLayoutDX11.h"
 #include "PipelineResources/ConstantBufferDX11.h"
 #include "PipelineResources/ShaderDX11.h"
+#include "PipelineResources/TextureDX11.h"
+
+#include "Utils/WICTextureLoader.h"
 
 #include "Core/Application.h"
 #include "WindowsWnd.h"
+
+namespace
+{
+	std::string const ShadersDirectory = "../Source/LyreEngine/Render/Shaders/";
+	std::string const ShadersExtention = ".fx";
+
+	std::string const DataDirectory = "../Data/";
+}
 
 namespace Lyre
 {
@@ -255,9 +266,56 @@ namespace Lyre
 		return std::make_shared<CConstantBufferDX11>(layout, &m_dxInterface);
 	}
 
-	std::shared_ptr<CShader> CDirectX11API::CreateShader(std::string const& vsSrc, std::string const& psSrc)
+	std::shared_ptr<CShader> CDirectX11API::CreateShaderFromSources(std::string const& vsSrc, std::string const& psSrc)
 	{
 		return std::make_shared<CShaderDX11>(vsSrc, psSrc, &m_dxInterface);
+	}
+
+	std::shared_ptr<CShader> CDirectX11API::CreateShaderFromFiles(std::string const& vsFile, std::string const& psFile)
+	{
+		std::ifstream vsStream(ShadersDirectory + vsFile + ShadersExtention);
+		std::ifstream psStream(ShadersDirectory + psFile + ShadersExtention);
+
+		if (!vsStream || !psStream)
+		{
+			return nullptr;
+		}
+
+		std::string vsSrc{
+			std::istreambuf_iterator<char>(vsStream),
+			std::istreambuf_iterator<char>()
+		};
+		std::string psSrc{
+			std::istreambuf_iterator<char>(psStream),
+			std::istreambuf_iterator<char>()
+		};
+
+		return std::make_shared<CShaderDX11>(vsSrc, psSrc, &m_dxInterface);
+	}
+
+	std::shared_ptr<CTexture> CDirectX11API::CreateTextureFromFile(std::string const& filename)
+	{
+		std::shared_ptr<CTextureDX11> texture = std::make_shared<CTextureDX11>(&m_dxInterface);
+		
+		std::string const filePath = DataDirectory + filename;
+		wchar_t wfilePath[100];
+		size_t length;
+		mbstowcs_s(&length, wfilePath, filePath.c_str(), filePath.size());
+		
+		HRESULT hr = CreateWICTextureFromFile(
+			m_dxInterface.device,
+			m_dxInterface.context,
+			wfilePath,
+			(ID3D11Resource**)&texture->m_texture,
+			&texture->m_view
+		);
+
+		if (FAILED(hr))
+		{
+			return nullptr;
+		}
+
+		return texture;
 	}
 
 }
